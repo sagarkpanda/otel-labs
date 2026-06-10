@@ -1,5 +1,6 @@
 services:
   node-frontend:
+    image: ghcr.io/${GHCR_OWNER}/node-frontend:${IMAGE_TAG}
     build:
       context: ./node-frontend
     container_name: node-frontend
@@ -9,6 +10,7 @@ services:
       - otel-collector
 
   python-orders:
+    image: ghcr.io/${GHCR_OWNER}/python-orders:${IMAGE_TAG}
     build:
       context: ./python-orders
     container_name: python-orders
@@ -16,30 +18,28 @@ services:
       - "8000:8000"
 
   go-inventory:
-   build:
-    context: ./go-inventory
-   container_name: go-inventory
-   ports:
-    - "8080:8080"
-   depends_on:
-    - otel-collector
-   environment:
-    OTEL_SERVICE_NAME: go-inventory
-    OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    image: ghcr.io/${GHCR_OWNER}/go-inventory:${IMAGE_TAG}
+    build:
+      context: ./go-inventory
+    container_name: go-inventory
+    ports:
+      - "8080:8080"
+    depends_on:
+      - otel-collector
+    environment:
+      OTEL_SERVICE_NAME: go-inventory
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector
     environment:
       - NEW_RELIC_LICENSE_KEY=${NR_KEY}
-
     command:
-    - "--config=/etc/otelcol-contrib/config.yaml"
-
+      - "--config=/etc/otelcol-contrib/config.yaml"
     volumes:
-    - ./otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml
-    - /var/lib/docker/containers:/var/lib/docker/containers:ro
-
+      - ./otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
     ports:
-    - "4317:4317"
-    - "4318:4318"
+      - "4317:4317"
+      - "4318:4318"
