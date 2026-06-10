@@ -1,4 +1,4 @@
-# OTel Labs – OpenTelemetry Learning Project
+# OTel Labs – OpenTelemetry on EKS for End to End Observability
 
 <img src="images/screenshot.png" alt="Screenshot" width="600">
 
