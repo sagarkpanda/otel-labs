@@ -3,6 +3,7 @@ receivers:
     protocols:
       grpc:
         endpoint: 0.0.0.0:4317
+
       http:
         endpoint: 0.0.0.0:4318
 
@@ -13,24 +14,32 @@ exporters:
   debug:
     verbosity: detailed
 
-  otlp_http/honeycomb:
-    endpoint: https://api.honeycomb.io
-    headers:
-      x-honeycomb-team: ${env:HONEYCOMB_API_KEY}
+  datadog:
+    api:
+      site: ap1.datadoghq.com
+      key: ${env:DD_API_KEY}
 
 service:
+
   pipelines:
+
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [debug, otlp_http/honeycomb]
+      exporters:
+        - debug
+        - datadog
 
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [debug, otlp_http/honeycomb]
+      exporters:
+        - debug
+        - datadog
 
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [debug, otlp_http/honeycomb]
+      exporters:
+        - debug
+        - datadog
