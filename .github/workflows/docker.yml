@@ -4,6 +4,15 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**/*.md'
+      - '.gitignore'
+      - '.dockerignore'
+      - '.env.example'
+      - 'LICENSE'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
 
   workflow_dispatch:
 
@@ -14,6 +23,10 @@ permissions:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
+    env:
+      GHCR_OWNER: ${{ github.repository_owner }}
+      RUN_TAG: ${{ github.run_number }}
 
     steps:
       - name: Checkout
@@ -26,32 +39,24 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      #
-      # Build + Push latest
-      #
       - name: Build latest images
         env:
-          GHCR_OWNER: ${{ github.repository_owner }}
           IMAGE_TAG: latest
         run: docker compose build
+
+      - name: Tag run-number images
+        run: |
+          docker tag ghcr.io/${GHCR_OWNER}/node-frontend:latest ghcr.io/${GHCR_OWNER}/node-frontend:${RUN_TAG}
+          docker tag ghcr.io/${GHCR_OWNER}/python-orders:latest ghcr.io/${GHCR_OWNER}/python-orders:${RUN_TAG}
+          docker tag ghcr.io/${GHCR_OWNER}/go-inventory:latest ghcr.io/${GHCR_OWNER}/go-inventory:${RUN_TAG}
 
       - name: Push latest images
         env:
-          GHCR_OWNER: ${{ github.repository_owner }}
           IMAGE_TAG: latest
         run: docker compose push
 
-      #
-      # Build + Push run-number tag
-      #
-      - name: Build run-number images
-        env:
-          GHCR_OWNER: ${{ github.repository_owner }}
-          IMAGE_TAG: ${{ github.run_number }}
-        run: docker compose build
-
       - name: Push run-number images
-        env:
-          GHCR_OWNER: ${{ github.repository_owner }}
-          IMAGE_TAG: ${{ github.run_number }}
-        run: docker compose push
+        run: |
+          docker push ghcr.io/${GHCR_OWNER}/node-frontend:${RUN_TAG}
+          docker push ghcr.io/${GHCR_OWNER}/python-orders:${RUN_TAG}
+          docker push ghcr.io/${GHCR_OWNER}/go-inventory:${RUN_TAG}
