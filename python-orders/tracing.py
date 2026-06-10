@@ -25,6 +25,21 @@ from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import (
     OTLPMetricExporter
 )
 
+from opentelemetry._logs import (
+    set_logger_provider
+)
+
+from opentelemetry.sdk._logs import (
+    LoggerProvider
+)
+
+from opentelemetry.sdk._logs.export import (
+    BatchLogRecordProcessor
+)
+
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import (
+    OTLPLogExporter
+)
 
 resource = Resource.create(
     {
@@ -78,6 +93,27 @@ meter_provider = MeterProvider(
 
 metrics.set_meter_provider(
     meter_provider
+)
+
+#
+# Logs
+#
+
+logger_provider = LoggerProvider(
+    resource=resource
+)
+
+logger_provider.add_log_record_processor(
+    BatchLogRecordProcessor(
+        OTLPLogExporter(
+            endpoint="otel-collector:4317",
+            insecure=True
+        )
+    )
+)
+
+set_logger_provider(
+    logger_provider
 )
 
 print(

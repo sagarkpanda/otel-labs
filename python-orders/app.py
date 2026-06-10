@@ -2,8 +2,6 @@ from fastapi import FastAPI
 import uuid
 import requests
 import random
-import logging
-import json
 
 from tracing import provider
 
@@ -15,6 +13,14 @@ from opentelemetry.instrumentation.fastapi import (
 
 from opentelemetry.instrumentation.requests import (
     RequestsInstrumentor
+)
+
+from opentelemetry._logs import (
+    get_logger
+)
+
+from opentelemetry._logs.severity import (
+    SeverityNumber
 )
 
 app = FastAPI()
@@ -44,14 +50,20 @@ inventory_requests = (
     )
 )
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s"
-)
-
-logger = logging.getLogger(
+otel_logger = get_logger(
     "python-orders"
 )
+
+SEVERITIES = {
+    "INFO":
+        SeverityNumber.INFO,
+
+    "WARN":
+        SeverityNumber.WARN,
+
+    "ERROR":
+        SeverityNumber.ERROR,
+}
 
 
 def log(
@@ -59,18 +71,26 @@ def log(
     message,
     **kwargs
 ):
-    payload = {
-        "service":
-            "python-orders",
-        "level":
-            level,
-        "message":
-            message,
-        **kwargs
-    }
 
-    logger.info(
-        json.dumps(payload)
+    otel_logger.emit(
+        severity_number=
+            SEVERITIES.get(
+                level,
+                SeverityNumber.INFO
+            ),
+
+        severity_text=
+            level,
+
+        body=
+            message,
+
+        attributes={
+            "service":
+                "python-orders",
+
+            **kwargs
+        }
     )
 
 
@@ -125,7 +145,8 @@ def create_order():
 
         return {
             "status": "failed",
-            "message": "Insufficient inventory",
+            "message":
+                "Insufficient inventory",
             "requestedQuantity":
                 requested_quantity,
             "inventory":
@@ -141,14 +162,17 @@ def create_order():
     log(
         "INFO",
         "Order created",
-        orderId=order_id,
+        orderId=
+            order_id,
         requestedQuantity=
             requested_quantity
     )
 
     return {
-        "orderId": order_id,
-        "status": "created",
+        "orderId":
+            order_id,
+        "status":
+            "created",
         "requestedQuantity":
             requested_quantity,
         "inventory":
