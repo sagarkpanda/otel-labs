@@ -7,7 +7,6 @@ const {
 
 const {
   context,
-  trace,
 } = require(
   "@opentelemetry/api"
 );
@@ -40,18 +39,8 @@ function log(
       "node-frontend"
     );
 
-  const activeContext =
-    context.active();
-
-  const span =
-    trace.getSpan(
-      activeContext
-    );
-
-  const spanContext =
-    span?.spanContext();
-
   logger.emit({
+
     severityNumber:
       SEVERITY_MAP[
         severityText
@@ -64,19 +53,14 @@ function log(
       message,
 
     attributes: {
+      service:
+        "node-frontend",
+
       ...attributes,
-
-      ...(spanContext && {
-        trace_id:
-          spanContext.traceId,
-
-        span_id:
-          spanContext.spanId,
-      }),
     },
 
     context:
-      activeContext,
+      context.active(),
   });
 }
 
