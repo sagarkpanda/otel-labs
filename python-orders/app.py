@@ -72,6 +72,15 @@ def log(
     **kwargs
 ):
 
+    attributes = {
+        "service":
+            "python-orders",
+    }
+
+    attributes.update(
+        kwargs
+    )
+
     otel_logger.emit(
         severity_number=
             SEVERITIES.get(
@@ -85,12 +94,8 @@ def log(
         body=
             message,
 
-        attributes={
-            "service":
-                "python-orders",
-
-            **kwargs
-        }
+        attributes=
+            attributes
     )
 
 
@@ -103,8 +108,10 @@ def health():
     )
 
     return {
-        "service": "python-orders",
-        "status": "healthy"
+        "service":
+            "python-orders",
+        "status":
+            "healthy"
     }
 
 
@@ -144,7 +151,8 @@ def create_order():
         )
 
         return {
-            "status": "failed",
+            "status":
+                "failed",
             "message":
                 "Insufficient inventory",
             "requestedQuantity":
