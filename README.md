@@ -1,6 +1,8 @@
-OTel Labs – OpenTelemetry Learning Project
+# OTel Labs – OpenTelemetry Learning Project
 
-Overview
+<img src="images/screenshot.png" alt="Screenshot" width="600">
+
+## Overview
 
 OTel Labs is a hands-on observability project built to learn OpenTelemetry across multiple programming languages and deployment environments.
 
@@ -14,10 +16,9 @@ Each service is instrumented with OpenTelemetry and exports telemetry data to a 
 
 The collector forwards traces, metrics, and logs to New Relic for visualization and analysis.
 
----
+### Architecture
 
-Architecture
-
+```
 Node Frontend
       |
       v
@@ -35,16 +36,17 @@ OpenTelemetry Collector
       v
 
 New Relic
+```
 
----
+## Features
 
-Features
-
-Distributed Tracing
+### Distributed Tracing
 
 Track requests as they flow through multiple services.
 
 Example:
+
+```
 
 node-frontend
       ↓
@@ -52,7 +54,8 @@ python-orders
       ↓
 go-inventory
 
-Metrics
+```
+### Metrics
 
 Collect application and runtime metrics including:
 
@@ -61,7 +64,7 @@ Collect application and runtime metrics including:
 - Custom business metrics
 - Runtime metrics
 
-Logs
+### Logs
 
 Export structured logs through OpenTelemetry.
 
@@ -77,38 +80,35 @@ Supported backends tested during development:
 - Honeycomb
 - Datadog
 
----
+## Tech Stack
 
-Tech Stack
-
-Applications
+### Applications
 
 - Node.js
 - Python
 - Go
 
-Observability
+### Observability
 
 - OpenTelemetry SDKs
 - OpenTelemetry Collector
 
-Containerization
+### Containerization
 
 - Docker
 - Docker Compose
 
-CI/CD
+### CI/CD
 
 - GitHub Actions
 - GitHub Container Registry (GHCR)
 
-Observability Backend
+### Observability Backend
 
 - New Relic
 
----
 
-Local Development
+## Local Development
 
 Start the entire stack:
 
@@ -122,24 +122,24 @@ Python Orders| 8000
 Go Inventory| 8080
 OpenTelemetry Collector| 4317 / 4318
 
----
 
 Environment Variables
 
 Create a ".env" file:
 
+```
 NR_KEY=<your_new_relic_license_key>
 
 GHCR_OWNER=<yourname>
 IMAGE_TAG=local
 
+```
 The collector reads this value and uses it to export telemetry to New Relic.
 
 Do not commit the ".env" file to source control.
 
----
 
-GitHub Actions
+## GitHub Actions
 
 A GitHub Actions workflow automatically:
 
@@ -153,8 +153,6 @@ ghcr.io/<github-user>/node-frontend
 ghcr.io/<github-user>/python-orders
 ghcr.io/<github-user>/go-inventory
 
----
-
 Current Learning Goals
 
 - OpenTelemetry fundamentals
@@ -165,8 +163,6 @@ Current Learning Goals
 - Docker-based deployments
 - GitHub Actions CI/CD
 - Container image publishing
-
----
 
 Planned Roadmap
 
@@ -202,7 +198,6 @@ Phase 4 – Planned
 - End-to-end observability on EKS
 - New Relic Kubernetes monitoring
 
----
 
 Disclaimer
 
