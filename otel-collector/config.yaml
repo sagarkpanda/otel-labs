@@ -13,31 +13,24 @@ exporters:
   debug:
     verbosity: detailed
 
-  otlphttp/newrelic:
-    endpoint: https://otlp.eu01.nr-data.net
+  otlp_http/honeycomb:
+    endpoint: https://api.honeycomb.io
     headers:
-      api-key: ${env:NEW_RELIC_LICENSE_KEY}
+      x-honeycomb-team: ${env:HONEYCOMB_API_KEY}
 
 service:
   pipelines:
-
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters:
-        - debug
-        - otlphttp/newrelic
+      exporters: [debug, otlp_http/honeycomb]
 
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters:
-        - debug
-        - otlphttp/newrelic
+      exporters: [debug, otlp_http/honeycomb]
 
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters:
-        - debug
-        - otlphttp/newrelic
+      exporters: [debug, otlp_http/honeycomb]

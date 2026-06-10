@@ -1,45 +1,62 @@
 services:
+
   node-frontend:
     build:
       context: ./node-frontend
+
     container_name: node-frontend
+
     ports:
       - "3000:3000"
+
     depends_on:
       - otel-collector
+
 
   python-orders:
     build:
       context: ./python-orders
+
     container_name: python-orders
+
     ports:
       - "8000:8000"
 
+    depends_on:
+      - otel-collector
+
+
   go-inventory:
-   build:
-    context: ./go-inventory
-   container_name: go-inventory
-   ports:
-    - "8080:8080"
-   depends_on:
-    - otel-collector
-   environment:
-    OTEL_SERVICE_NAME: go-inventory
-    OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    build:
+      context: ./go-inventory
+
+    container_name: go-inventory
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      - otel-collector
+
+    environment:
+      OTEL_SERVICE_NAME: go-inventory
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
+
     container_name: otel-collector
+
     environment:
-      - NEW_RELIC_LICENSE_KEY=eu01xd48b612acd70635e780729e100b6d38NRAL
+      HONEYCOMB_API_KEY: ${HONEYCOMB_API_KEY}
 
     command:
-    - "--config=/etc/otelcol-contrib/config.yaml"
+      - "--config=/etc/otelcol-contrib/config.yaml"
 
     volumes:
-    - ./otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml
-    - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml
 
     ports:
-    - "4317:4317"
-    - "4318:4318"
+      - "4317:4317"
+      - "4318:4318"
