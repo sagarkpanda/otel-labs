@@ -31,7 +31,7 @@ services:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector
     environment:
-      - NEW_RELIC_LICENSE_KEY=eu01xd48b612acd70635e780729e100b6d38NRAL
+      - NEW_RELIC_LICENSE_KEY=${NR_KEY}
 
     command:
     - "--config=/etc/otelcol-contrib/config.yaml"
