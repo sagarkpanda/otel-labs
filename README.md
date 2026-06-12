@@ -1,5 +1,7 @@
 # OTel Labs – OpenTelemetry on EKS for End to End Observability
 
+ => <a href="https://github.com/sagarkpanda/otel-labs-platform">Repo with K8s, Terraform config</a>
+
 <img src="images/screenshot.png" alt="Screenshot" width="600">
 
 ## Overview
