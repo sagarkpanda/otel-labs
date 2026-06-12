@@ -38,7 +38,7 @@ function renderPage(title, content) {
   <!DOCTYPE html>
   <html>
   <head>
-    <title>${title}</title>
+    <title>${title} | OTel Lab</title>
 
     <link
       rel="icon"
