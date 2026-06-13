@@ -78,7 +78,7 @@ app.get("/", (req, res) => {
 
   res.send(
     renderPage(
-      "OTel Lab",
+      "Home",
       `
       <h1>🔭 OTel Lab</h1>
 

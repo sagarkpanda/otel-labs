@@ -14,6 +14,8 @@ on:
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/PULL_REQUEST_TEMPLATE.md'
 
+  workflow_dispatch:
+
 permissions:
   contents: read
   packages: write
@@ -24,11 +26,14 @@ jobs:
 
     env:
       GHCR_OWNER: ${{ github.repository_owner }}
-      RUN_TAG: ${{ github.run_number }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Generate short SHA tag
+        run: |
+          echo "SHORT_SHA=$(git rev-parse --short=7 HEAD)" >> $GITHUB_ENV
 
       - name: Login to GHCR
         uses: docker/login-action@v4
@@ -42,19 +47,19 @@ jobs:
           IMAGE_TAG: latest
         run: docker compose build
 
-      - name: Tag run-number images
+      - name: Tag SHA images
         run: |
-          docker tag ghcr.io/${GHCR_OWNER}/node-frontend:latest ghcr.io/${GHCR_OWNER}/node-frontend:${RUN_TAG}
-          docker tag ghcr.io/${GHCR_OWNER}/python-orders:latest ghcr.io/${GHCR_OWNER}/python-orders:${RUN_TAG}
-          docker tag ghcr.io/${GHCR_OWNER}/go-inventory:latest ghcr.io/${GHCR_OWNER}/go-inventory:${RUN_TAG}
+          docker tag ghcr.io/${GHCR_OWNER}/node-frontend:latest ghcr.io/${GHCR_OWNER}/node-frontend:${SHORT_SHA}
+          docker tag ghcr.io/${GHCR_OWNER}/python-orders:latest ghcr.io/${GHCR_OWNER}/python-orders:${SHORT_SHA}
+          docker tag ghcr.io/${GHCR_OWNER}/go-inventory:latest ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
 
       - name: Push latest images
         env:
           IMAGE_TAG: latest
         run: docker compose push
 
-      - name: Push run-number images
+      - name: Push SHA images
         run: |
-          docker push ghcr.io/${GHCR_OWNER}/node-frontend:${RUN_TAG}
-          docker push ghcr.io/${GHCR_OWNER}/python-orders:${RUN_TAG}
-          docker push ghcr.io/${GHCR_OWNER}/go-inventory:${RUN_TAG}
+          docker push ghcr.io/${GHCR_OWNER}/node-frontend:${SHORT_SHA}
+          docker push ghcr.io/${GHCR_OWNER}/python-orders:${SHORT_SHA}
+          docker push ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
