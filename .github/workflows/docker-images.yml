@@ -14,8 +14,6 @@ on:
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/PULL_REQUEST_TEMPLATE.md'
 
-  workflow_dispatch:
-
 permissions:
   contents: read
   packages: write
