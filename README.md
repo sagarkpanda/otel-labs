@@ -1,8 +1,8 @@
 # OTel Labs – OpenTelemetry on EKS for End to End Observability
 
- => <a href="https://github.com/sagarkpanda/otel-labs-platform">Repo with K8s, Terraform config</a>
+Next Repo => <a href="https://github.com/sagarkpanda/otel-labs-platform">Repo with K8s, Terraform config</a>
 
-<img src="images/screenshot.png" alt="Screenshot" width="600">
+<img src="images/o11y.png" alt="Screenshot" width="600">
 
 ## Overview
 
@@ -116,14 +116,12 @@ Start the entire stack:
 
 docker compose up --build
 
-Services:
-
-Service| Port
-Node Frontend| 3000
-Python Orders| 8000
-Go Inventory| 8080
-OpenTelemetry Collector| 4317 / 4318
-
+| Service                  | Port       |
+|--------------------------|------------|
+| Node Frontend            | 3000       |
+| Python Orders            | 8000       |
+| Go Inventory             | 8080       |
+| OpenTelemetry Collector  | 4317 / 4318 |
 
 Environment Variables
 
@@ -132,14 +130,12 @@ Create a ".env" file:
 ```
 NR_KEY=<your_new_relic_license_key>
 
-GHCR_OWNER=<yourname>
+GHCR_OWNER=<your gh username>
 IMAGE_TAG=local
-
 ```
 The collector reads this value and uses it to export telemetry to New Relic.
 
 Do not commit the ".env" file to source control.
-
 
 ## GitHub Actions
 
@@ -178,13 +174,13 @@ Phase 1 – Completed
 - Docker Compose setup
 - GitHub Actions build and push
 
-Phase 2 – In Progress
+Phase 2 – Completed
 
 - GitHub Container Registry (GHCR)
 - Kubernetes manifests
 - Kustomize-based image updates
 
-Phase 3 – Planned
+Phase 3 – Completed
 
 - Amazon EKS deployment
 - ArgoCD GitOps workflow
