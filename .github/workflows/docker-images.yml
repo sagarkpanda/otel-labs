@@ -31,6 +31,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Checkout manifest repo
+        uses: actions/checkout@v6
+        with:
+          repository: sagarkpanda/otel-labs-platform
+          token: ${{ secrets.PLATFORM_REPO_TOKEN }}
+          path: otel-labs-platform
+
+      - name: Verify manifest repo access
+        run: |
+          echo "Current directory:"
+          pwd
+      
+          echo
+          echo "Manifest repo files:"
+          find otel-labs-platform -type f | sort
+
       - name: Generate short SHA tag
         run: |
           echo "SHORT_SHA=$(git rev-parse --short=7 HEAD)" >> $GITHUB_ENV
