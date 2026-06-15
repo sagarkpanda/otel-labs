@@ -28,39 +28,8 @@ jobs:
       GHCR_OWNER: ${{ github.repository_owner }}
 
     steps:
-      - name: Checkout
+      - name: Checkout application repo
         uses: actions/checkout@v6
-
-      - name: Checkout manifest repo
-        uses: actions/checkout@v6
-        with:
-          repository: sagarkpanda/otel-labs-platform
-          token: ${{ secrets.PLATFORM_REPO_TOKEN }}
-          path: otel-labs-platform
-
-      - name: Verify manifest repo access
-        run: |
-          echo "Current directory:"
-          pwd
-      
-          echo
-          echo "Manifest repo files:"
-          find otel-labs-platform -type f | sort
-
-      - name: Test commit to manifest repo
-        run: |
-          cd otel-labs-platform
-    
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      
-          echo "$(date)" > test.md
-      
-          git add test.md
-      
-          git commit -m "test: workflow write access"
-      
-          git push
 
       - name: Generate short SHA tag
         run: |
@@ -94,3 +63,41 @@ jobs:
           docker push ghcr.io/${GHCR_OWNER}/node-frontend:${SHORT_SHA}
           docker push ghcr.io/${GHCR_OWNER}/python-orders:${SHORT_SHA}
           docker push ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
+
+      - name: Checkout manifest repo
+        uses: actions/checkout@v6
+        with:
+          repository: sagarkpanda/otel-labs-platform
+          token: ${{ secrets.PLATFORM_REPO_TOKEN }}
+          path: otel-labs-platform
+
+      - name: Update image tags in manifest repo
+        run: |
+          cd otel-labs-platform
+
+          sed -i "s/newTag:.*/newTag: ${SHORT_SHA}/" \
+            k8s/node-frontend/kustomization.yml
+
+          sed -i "s/newTag:.*/newTag: ${SHORT_SHA}/" \
+            k8s/python-orders/kustomization.yml
+
+          sed -i "s/newTag:.*/newTag: ${SHORT_SHA}/" \
+            k8s/go-inventory/kustomization.yml
+
+      - name: Commit and push manifest changes
+        run: |
+          cd otel-labs-platform
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "chore: update image tags to ${SHORT_SHA}"
+
+          git push
