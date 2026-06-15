@@ -20,26 +20,13 @@ The collector forwards traces, metrics, and logs to New Relic for visualization 
 
 ### Architecture
 
+```mermaid
+graph TD
+    A[Node Frontend] --> B[Python Orders]
+    B --> C[Go Inventory]
+    C --> D[OpenTelemetry Collector]
+    D --> E[New Relic]
 ```
-Node Frontend
-      |
-      v
-Python Orders
-      |
-      v
-Go Inventory
-
-      |
-      v
-
-OpenTelemetry Collector
-
-      |
-      v
-
-New Relic
-```
-
 ## Features
 
 ### Distributed Tracing
@@ -49,7 +36,6 @@ Track requests as they flow through multiple services.
 Example:
 
 ```
-
 node-frontend
       ↓
 python-orders
@@ -76,11 +62,13 @@ Applications use standard OpenTelemetry SDKs and are not tied to any observabili
 
 Only the collector configuration changes when switching backends.
 
-Supported backends tested during development:
+Backends tested during development:
 
 - New Relic
 - Honeycomb
 - Datadog
+  
+But others will also work as otel is vendor neutral.
 
 ## Tech Stack
 
@@ -104,11 +92,17 @@ Supported backends tested during development:
 
 - GitHub Actions
 - GitHub Container Registry (GHCR)
-
+- Argo CD
+  
 ### Observability Backend
 
 - New Relic
+- Honeycomb.io (limited use, only for claude mcp)
 
+### Container Orchestration 
+- AWS EKS
+- Traefik ingress
+- Hasicorp Vault for secret
 
 ## Local Development
 
@@ -144,6 +138,7 @@ A GitHub Actions workflow automatically:
 1. Builds application images
 2. Builds using Docker Compose
 3. Pushes images to GitHub Container Registry (GHCR)
+4. Updates the image tag in the manifest of the otel-labs-platform repo.
 
 Resulting images:
 
