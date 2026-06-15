@@ -54,9 +54,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       
-          echo "$(date)" > test.txt
+          echo "$(date)" > test.md
       
-          git add test.txt
+          git add test.md
       
           git commit -m "test: workflow write access"
       
