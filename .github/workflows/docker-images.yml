@@ -47,6 +47,21 @@ jobs:
           echo "Manifest repo files:"
           find otel-labs-platform -type f | sort
 
+      - name: Test commit to manifest repo
+        run: |
+          cd otel-labs-platform
+    
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      
+          echo "$(date)" > test.txt
+      
+          git add test.txt
+      
+          git commit -m "test: workflow write access"
+      
+          git push
+
       - name: Generate short SHA tag
         run: |
           echo "SHORT_SHA=$(git rev-parse --short=7 HEAD)" >> $GITHUB_ENV
