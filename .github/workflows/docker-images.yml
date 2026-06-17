@@ -76,13 +76,13 @@ jobs:
         run: |
           cd otel-labs-platform
 
-          sed -i "s/newTag:.*/newTag: ${SHORT_SHA}/" \
+          sed -i "s/newTag:.*/newTag: \"${SHORT_SHA}\"/" \
             k8s/node-frontend/kustomization.yml
 
-          sed -i "s/newTag:.*/newTag: ${SHORT_SHA}/" \
+          sed -i "s/newTag:.*/newTag: \"${SHORT_SHA}\"/" \
             k8s/python-orders/kustomization.yml
 
-          sed -i "s/newTag:.*/newTag: ${SHORT_SHA}/" \
+          sed -i "s/newTag:.*/newTag: \"${SHORT_SHA}\"/" \
             k8s/go-inventory/kustomization.yml
 
       - name: Commit and push manifest changes
