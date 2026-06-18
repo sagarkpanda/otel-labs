@@ -287,3 +287,13 @@ ghcr.io/<github-user>/go-inventory:<last commitid<> and <latest>
 ## Disclaimer
 
 This repository is intended as a demo project for exploring OpenTelemetry, observability, Kubernetes, GitOps, and cloud-native platform engineering.
+
+## Checkout the full article here
+
+📖 **Building a Kubernetes Observability Platform with OpenTelemetry**
+
+<a href="https://sagarpanda.com/blogs/#o11y">
+  <img
+    src="https://raw.githubusercontent.com/sagarkpanda/sagarkpanda/main/images/website.png"
+    alt="Building a Kubernetes Observability Platform with OpenTelemetry"
+</a>
