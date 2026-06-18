@@ -8,7 +8,10 @@ services:
       - "3000:3000"
     depends_on:
       - otel-collector
-
+    environment:
+      OTEL_SERVICE_NAME: node-frontend
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=otel-labs,deployment.environment=lab
   python-orders:
     image: ghcr.io/${GHCR_OWNER}/python-orders:${IMAGE_TAG}
     build:
@@ -16,7 +19,12 @@ services:
     container_name: python-orders
     ports:
       - "8000:8000"
-
+    depends_on:
+      - otel-collector
+    environment:
+      OTEL_SERVICE_NAME: python-orders
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=otel-labs,deployment.environment=lab
   go-inventory:
     image: ghcr.io/${GHCR_OWNER}/go-inventory:${IMAGE_TAG}
     build:
@@ -29,12 +37,13 @@ services:
     environment:
       OTEL_SERVICE_NAME: go-inventory
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
-
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=otel-labs,deployment.environment=lab
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector
     environment:
-      - NEW_RELIC_LICENSE_KEY=${NR_KEY}
+      NEW_RELIC_LICENSE_KEY: ${NR_KEY}
+      HONEYCOMB_API_KEY: ${HC_KEY}
     command:
       - "--config=/etc/otelcol-contrib/config.yaml"
     volumes:
