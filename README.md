@@ -220,9 +220,9 @@ A GitHub Actions workflow automatically:
 Resulting images:
 
 ```text
-ghcr.io/<github-user>/node-frontend
-ghcr.io/<github-user>/python-orders
-ghcr.io/<github-user>/go-inventory
+ghcr.io/<github-user>/node-frontend:<last commitid<> and <latest>
+ghcr.io/<github-user>/python-orders:<last commitid<> and <latest>
+ghcr.io/<github-user>/go-inventory:<last commitid<> and <latest>
 ```
 
 ## Project Overview
