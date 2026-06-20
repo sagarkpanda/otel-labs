@@ -8,7 +8,6 @@
   <img
     img src="images/o11y.png"
     alt="OTel Labs" width="1000">
-  />
 </a>
 
 ## Overview
