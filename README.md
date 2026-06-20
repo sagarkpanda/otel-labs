@@ -1,10 +1,15 @@
 # OTel Labs – OpenTelemetry on EKS: End-to-End Observability
 
-> Companion platform repository:
+> Companion platform repository👇
 >
 > https://github.com/sagarkpanda/otel-labs-platform
 
-<img src="images/o11y.png" alt="OTel Labs" width="800">
+<a href="https://sagarpanda.com/blogs/monitoring/otel-on-eks/">
+  <img
+    img src="images/o11y.png"
+    alt="OTel Labs" width="1000">
+  />
+</a>
 
 ## Overview
 
@@ -292,7 +297,7 @@ This repository is intended as a demo project for exploring OpenTelemetry, obser
 
 📖 **Building a Kubernetes Observability Platform with OpenTelemetry**
 
-<a href="https://sagarpanda.com/blogs/#o11y">
+<a href="https://sagarpanda.com/blogs/monitoring/otel-on-eks/">
   <img
     src="https://raw.githubusercontent.com/sagarkpanda/sagarkpanda/main/images/website.png"
     alt="Building a Kubernetes Observability Platform with OpenTelemetry"
