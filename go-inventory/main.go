@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -26,25 +25,12 @@ var (
 	outOfStockCounter metricapi.Int64Counter
 )
 
-func logJSON(
-	level string,
-	message string,
-) {
-	log.Println(
-		fmt.Sprintf(
-			`{"service":"go-inventory","level":"%s","message":"%s"}`,
-			level,
-			message,
-		),
-	)
-}
-
 func inventoryHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
 
-	ctx := context.Background()
+	ctx := r.Context()
 
 	inventoryRequests.Add(
 		ctx,
@@ -62,7 +48,8 @@ func inventoryHandler(
 			1,
 		)
 
-		logJSON(
+		logOtel(
+			ctx,
 			"INFO",
 			"Inventory available",
 		)
@@ -76,7 +63,8 @@ func inventoryHandler(
 			1,
 		)
 
-		logJSON(
+		logOtel(
+			ctx,
 			"WARN",
 			"Out of stock",
 		)
@@ -148,7 +136,8 @@ func main() {
 		),
 	)
 
-	logJSON(
+	logOtel(
+		context.Background(),
 		"INFO",
 		"Service started",
 	)

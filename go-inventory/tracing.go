@@ -11,12 +11,17 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 
+	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
+
 	"go.opentelemetry.io/otel/propagation"
 
 	"go.opentelemetry.io/otel/sdk/resource"
 
+	sdklog "go.opentelemetry.io/otel/sdk/log"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+
+	"go.opentelemetry.io/otel/log/global"
 
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 )
@@ -105,6 +110,37 @@ func initTracer() func() {
 		meterProvider,
 	)
 
+	//
+	// Log Exporter
+	//
+
+	logExporter, err := otlploggrpc.New(
+		ctx,
+		otlploggrpc.WithEndpoint(
+			"otel-collector:4317",
+		),
+		otlploggrpc.WithInsecure(),
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	loggerProvider := sdklog.NewLoggerProvider(
+		sdklog.WithProcessor(
+			sdklog.NewBatchProcessor(
+				logExporter,
+			),
+		),
+		sdklog.WithResource(
+			res,
+		),
+	)
+
+	global.SetLoggerProvider(
+		loggerProvider,
+	)
+
 	otel.SetTextMapPropagator(
 		propagation.NewCompositeTextMapPropagator(
 			propagation.TraceContext{},
@@ -117,6 +153,10 @@ func initTracer() func() {
 	)
 
 	return func() {
+
+		_ = loggerProvider.Shutdown(
+			context.Background(),
+		)
 
 		_ = meterProvider.Shutdown(
 			context.Background(),
