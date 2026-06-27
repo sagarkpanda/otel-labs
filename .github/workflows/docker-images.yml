@@ -56,7 +56,7 @@ jobs:
           docker tag ghcr.io/${GHCR_OWNER}/go-inventory:latest ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
 
       - name: Scan node-frontend image
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@0.36.0
         with:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/node-frontend:latest
           format: sarif
@@ -72,7 +72,7 @@ jobs:
           sarif_file: trivy-node-frontend.sarif
 
       - name: Scan python-orders image
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@0.36.0
         with:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/python-orders:latest
           format: sarif
@@ -88,7 +88,7 @@ jobs:
           sarif_file: trivy-python-orders.sarif
 
       - name: Scan go-inventory image
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@0.36.0
         with:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/go-inventory:latest
           format: sarif
