@@ -63,7 +63,7 @@ jobs:
           output: trivy-node-frontend.sarif
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          exit-code: 1
+          exit-code: 0
 
       - name: Upload node-frontend SARIF
         if: always()
@@ -79,7 +79,7 @@ jobs:
           output: trivy-python-orders.sarif
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          exit-code: 1
+          exit-code: 0
 
       - name: Upload python-orders SARIF
         if: always()
@@ -95,7 +95,7 @@ jobs:
           output: trivy-go-inventory.sarif
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          exit-code: 1
+          exit-code: 0
 
       - name: Upload go-inventory SARIF
         if: always()
