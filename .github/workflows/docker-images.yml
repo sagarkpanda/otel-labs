@@ -67,7 +67,7 @@ jobs:
 
       - name: Upload node-frontend SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-node-frontend.sarif
 
@@ -83,7 +83,7 @@ jobs:
 
       - name: Upload python-orders SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-python-orders.sarif
 
@@ -99,7 +99,7 @@ jobs:
 
       - name: Upload go-inventory SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-go-inventory.sarif
 
