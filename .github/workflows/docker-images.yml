@@ -1,4 +1,4 @@
-name: Build and Push Images
+name: Build, Scan and Push Images
 
 on:
   push:
@@ -20,9 +20,10 @@ on:
 permissions:
   contents: read
   packages: write
+  security-events: write
 
 jobs:
-  build-and-push:
+  build-scan-push:
     runs-on: ubuntu-latest
 
     env:
@@ -53,6 +54,54 @@ jobs:
           docker tag ghcr.io/${GHCR_OWNER}/node-frontend:latest ghcr.io/${GHCR_OWNER}/node-frontend:${SHORT_SHA}
           docker tag ghcr.io/${GHCR_OWNER}/python-orders:latest ghcr.io/${GHCR_OWNER}/python-orders:${SHORT_SHA}
           docker tag ghcr.io/${GHCR_OWNER}/go-inventory:latest ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
+
+      - name: Scan node-frontend image
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: ghcr.io/${{ env.GHCR_OWNER }}/node-frontend:latest
+          format: sarif
+          output: trivy-node-frontend.sarif
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
+
+      - name: Upload node-frontend SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-node-frontend.sarif
+
+      - name: Scan python-orders image
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: ghcr.io/${{ env.GHCR_OWNER }}/python-orders:latest
+          format: sarif
+          output: trivy-python-orders.sarif
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
+
+      - name: Upload python-orders SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-python-orders.sarif
+
+      - name: Scan go-inventory image
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: ghcr.io/${{ env.GHCR_OWNER }}/go-inventory:latest
+          format: sarif
+          output: trivy-go-inventory.sarif
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
+
+      - name: Upload go-inventory SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-go-inventory.sarif
 
       - name: Push latest images
         env:
