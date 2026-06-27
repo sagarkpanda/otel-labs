@@ -70,6 +70,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-node-frontend.sarif
+          category: node-frontend
 
       - name: Scan python-orders image
         uses: aquasecurity/trivy-action@v0.36.0
@@ -86,6 +87,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-python-orders.sarif
+          category: python-orders
 
       - name: Scan go-inventory image
         uses: aquasecurity/trivy-action@v0.36.0
@@ -102,7 +104,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-go-inventory.sarif
-
+          category: go-inventory
       - name: Push latest images
         env:
           IMAGE_TAG: latest
