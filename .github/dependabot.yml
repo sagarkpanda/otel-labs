@@ -10,28 +10,40 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: weekly
 
-  # Docker
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-
-  # Go (go.mod)
+  # Go
   - package-ecosystem: "gomod"
     directory: "/go-inventory"
     schedule:
-      interval: "weekly"
+      interval: weekly
 
-  # Node.js (package.json)
+  # Node.js
   - package-ecosystem: "npm"
     directory: "/node-frontend"
     schedule:
-      interval: "weekly"
+      interval: weekly
 
-  # Python (requirements.txt / pyproject.toml)
+  # Python
   - package-ecosystem: "pip"
     directory: "/python-orders"
     schedule:
-      interval: "weekly"
+      interval: weekly
+
+  # Docker - Go service
+  - package-ecosystem: "docker"
+    directory: "/go-inventory"
+    schedule:
+      interval: weekly
+
+  # Docker - Node service
+  - package-ecosystem: "docker"
+    directory: "/node-frontend"
+    schedule:
+      interval: weekly
+
+  # Docker - Python service
+  - package-ecosystem: "docker"
+    directory: "/python-orders"
+    schedule:
+      interval: weekly
