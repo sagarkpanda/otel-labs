@@ -10,7 +10,7 @@ RUN go mod tidy
 
 RUN go build -o inventory .
 
-FROM alpine:3.22
+FROM alpine:3.24
 
 WORKDIR /app
 
