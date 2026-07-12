@@ -60,8 +60,9 @@ jobs:
         with:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/node-frontend:latest
           format: sarif
+          scanners: vuln,misconfig
           output: trivy-node-frontend.sarif
-          severity: HIGH,CRITICAL
+          #severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: 0
 
