@@ -79,7 +79,7 @@ jobs:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/python-orders:latest
           format: sarif
           output: trivy-python-orders.sarif
-          severity: HIGH,CRITICAL
+          #severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: 0
 
