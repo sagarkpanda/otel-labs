@@ -83,6 +83,26 @@ jobs:
           ignore-unfixed: true
           exit-code: 0
 
+      # Temp trivy docker image scanner for user config
+
+      - name: Scan Go Dockerfile
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: ./go-inventory
+          scanners: misconfig
+          format: sarif
+          output: trivy-go-dockerfile.sarif
+          exit-code: 0
+      
+      - name: Upload Go Dockerfile SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-go-dockerfile.sarif
+          category: go-dockerfile
+      #----------------------------------#
+
       - name: Upload python-orders SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@v4
