@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
 
 permissions:
   contents: read
@@ -17,30 +16,79 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
 
-      - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
+      - name: Run Gitleaks (git history)
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: true
           GITLEAKS_ENABLE_SUMMARY: true
           GITLEAKS_ENABLE_COMMENTS: false
           GITLEAKS_ENABLE_UPLOAD_RESULTS: true
-          
-      - name: Generate SARIF
-        run: |
-          docker run --rm \
-            -v "$PWD:/path" \
-            ghcr.io/gitleaks/gitleaks:latest detect \
-            --source=/path \
-            --report-format sarif \
-            --report-path /path/gitleaks.sarif \
-            --exit-code 0
 
-      - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Run Gitleaks (full filesystem)
+        if: always()
+        run: |
+          docker run --rm -v "$PWD:/path" ghcr.io/gitleaks/gitleaks:latest \
+            dir /path --report-format sarif \
+            --report-path /path/gitleaks-fs.sarif --exit-code 0
+
+          docker run --rm -v "$PWD:/path" ghcr.io/gitleaks/gitleaks:latest \
+            dir /path --report-format json \
+            --report-path /path/gitleaks-fs.json --exit-code 0
+
+      - name: Add filesystem scan summary
+        if: always()
+        run: |
+          echo "## Gitleaks Filesystem Scan" >> "$GITHUB_STEP_SUMMARY"
+          if [ -s gitleaks-fs.json ] && [ "$(cat gitleaks-fs.json)" != "[]" ]; then
+            COUNT=$(jq length gitleaks-fs.json)
+            echo "⚠️ Found **$COUNT** potential secret(s) in working tree files." >> "$GITHUB_STEP_SUMMARY"
+            jq -r '.[] | "- `\(.File)` (rule: \(.RuleID))"' gitleaks-fs.json >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "✅ No secrets found in filesystem scan." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload filesystem scan artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          sarif_file: gitleaks.sarif
+          name: gitleaks-filesystem-results
+          path: |
+            gitleaks-fs.sarif
+            gitleaks-fs.json
+          retention-days: 30
+
+      - name: Upload SARIF (filesystem)
+        if: always()
+        uses: github/codeql-action/upload-sarif@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a
+        with:
+          sarif_file: gitleaks-fs.sarif
+          category: gitleaks-fs
+
+      - name: Upload Gitleaks to DefectDojo
+        if: always()
+        run: |
+          RESPONSE=$(curl --fail --show-error --silent \
+            -X POST \
+            "${{ secrets.DEFECTDOJO_URL }}/api/v2/reimport-scan/" \
+            -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+            -H "Accept: application/json" \
+            -F "scan_type=SARIF" \
+            -F "file=@gitleaks-fs.sarif" \
+            -F "auto_create_context=true" \
+            -F "product_type_name=TestOrg" \
+            -F "product_name=TestAsset" \
+            -F "engagement_name=TestEngagement" \
+            -F "test_title=Gitleaks" \
+            -F "close_old_findings=true" \
+            -F "do_not_reactivate=false" \
+            -F "environment=Development" \
+            -F "build_id=${{ github.run_number }}" \
+            -F "branch_tag=${{ github.ref_name }}" \
+            -F "commit_hash=${{ github.sha }}" \
+            -F "tags=github-actions,gitleaks,${{ github.ref_name }}")
+          echo "$RESPONSE"
