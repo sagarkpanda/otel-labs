@@ -55,14 +55,32 @@ jobs:
           docker tag ghcr.io/${GHCR_OWNER}/python-orders:latest ghcr.io/${GHCR_OWNER}/python-orders:${SHORT_SHA}
           docker tag ghcr.io/${GHCR_OWNER}/go-inventory:latest ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
 
+      # - name: Run Trivy Filesystem Scan
+      #   uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+      #   with:
+      #     scan-type: fs
+      #     scan-ref: .
+      #     scanners: vuln,misconfig
+      #     format: sarif
+      #     severity: HIGH,CRITICAL
+      #     output: trivy-fs.sarif
+      #     exit-code: 0
+
+      - name: Upload Filesystem SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-fs.sarif
+          category: trivy-fs
+
       - name: Scan node-frontend image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/node-frontend:latest
           format: sarif
           scanners: vuln,misconfig
+          severity: HIGH,CRITICAL
           output: trivy-node-frontend.sarif
-          #severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: 0
 
@@ -78,27 +96,11 @@ jobs:
         with:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/python-orders:latest
           format: sarif
+          scanners: vuln,misconfig
+          severity: HIGH,CRITICAL
           output: trivy-python-orders.sarif
-          #severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: 0
-
-      # Temp trivy docker image scanner for user config
-
-      - name: Scan Go Dockerfile
-        run: |
-            trivy config \
-            --format sarif \
-            --output trivy-go-dockerfile.sarif \
-            ./go-inventory
-      
-      - name: Upload Go Dockerfile SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: trivy-go-dockerfile.sarif
-          category: go-dockerfile
-      #----------------------------------#
 
       - name: Upload python-orders SARIF
         if: always()
@@ -112,8 +114,9 @@ jobs:
         with:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/go-inventory:latest
           format: sarif
-          output: trivy-go-inventory.sarif
+          scanners: vuln,misconfig
           severity: HIGH,CRITICAL
+          output: trivy-go-inventory.sarif
           ignore-unfixed: true
           exit-code: 0
 
@@ -123,6 +126,103 @@ jobs:
         with:
           sarif_file: trivy-go-inventory.sarif
           category: go-inventory
+
+      - name: Generate Node Frontend SBOM
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ghcr.io/${{ env.GHCR_OWNER }}/node-frontend:latest
+          format: cyclonedx
+          output: node-frontend-sbom.json
+
+      - name: Generate Python Orders SBOM
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ghcr.io/${{ env.GHCR_OWNER }}/python-orders:latest
+          format: cyclonedx
+          output: python-orders-sbom.json
+
+      - name: Generate Go Inventory SBOM
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ghcr.io/${{ env.GHCR_OWNER }}/go-inventory:latest
+          format: cyclonedx
+          output: go-inventory-sbom.json
+
+      - name: Upload SBOM Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: |
+            node-frontend-sbom.json
+            python-orders-sbom.json
+            go-inventory-sbom.json
+
+      - name: Upload Node Frontend Image Results to DefectDojo
+        if: always()
+        run: |
+          curl -X POST \
+            "${{ secrets.DEFECTDOJO_URL }}/api/v2/reimport-scan/" \
+            -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+            -H "Accept: application/json" \
+            -F "scan_type=SARIF" \
+            -F "file=@trivy-node-frontend.sarif" \
+            -F "auto_create_context=true" \
+            -F "product_type_name=TestOrg" \
+            -F "product_name=TestAsset" \
+            -F "engagement_name=TestEngagement" \
+            -F "test_title=TrivyNodeFrontendImage" \
+            -F "close_old_findings=true" \
+            -F "do_not_reactivate=false" \
+            -F "environment=Lab" \
+            -F "build_id=${{ github.run_number }}" \
+            -F "branch_tag=${{ github.ref_name }}" \
+            -F "commit_hash=${{ github.sha }}" \
+            -F "tags=github-actions,trivy,image,node-frontend,${{ github.ref_name }}"
+
+      - name: Upload Python Orders Image Results to DefectDojo
+        if: always()
+        run: |
+          curl -X POST \
+            "${{ secrets.DEFECTDOJO_URL }}/api/v2/reimport-scan/" \
+            -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+            -H "Accept: application/json" \
+            -F "scan_type=SARIF" \
+            -F "file=@trivy-python-orders.sarif" \
+            -F "auto_create_context=true" \
+            -F "product_type_name=TestOrg" \
+            -F "product_name=TestAsset" \
+            -F "engagement_name=TestEngagement" \
+            -F "test_title=TrivyPythonOrdersImage" \
+            -F "close_old_findings=true" \
+            -F "do_not_reactivate=false" \
+            -F "environment=Lab" \
+            -F "build_id=${{ github.run_number }}" \
+            -F "branch_tag=${{ github.ref_name }}" \
+            -F "commit_hash=${{ github.sha }}" \
+            -F "tags=github-actions,trivy,image,python-orders,${{ github.ref_name }}"
+
+      - name: Upload Go Inventory Image Results to DefectDojo
+        if: always()
+        run: |
+          curl -X POST \
+            "${{ secrets.DEFECTDOJO_URL }}/api/v2/reimport-scan/" \
+            -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+            -H "Accept: application/json" \
+            -F "scan_type=SARIF" \
+            -F "file=@trivy-go-inventory.sarif" \
+            -F "auto_create_context=true" \
+            -F "product_type_name=TestOrg" \
+            -F "product_name=TestAsset" \
+            -F "engagement_name=TestEngagement" \
+            -F "test_title=TrivyGoInventoryImage" \
+            -F "close_old_findings=true" \
+            -F "do_not_reactivate=false" \
+            -F "environment=Lab" \
+            -F "build_id=${{ github.run_number }}" \
+            -F "branch_tag=${{ github.ref_name }}" \
+            -F "commit_hash=${{ github.sha }}" \
+            -F "tags=github-actions,trivy,image,go-inventory,${{ github.ref_name }}"
+
       - name: Push latest images
         env:
           IMAGE_TAG: latest
