@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Checkout application repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Generate short SHA tag
         run: |
@@ -235,7 +235,7 @@ jobs:
           docker push ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
 
       - name: Checkout manifest repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: sagarkpanda/otel-labs-platform
           token: ${{ secrets.PLATFORM_REPO_TOKEN }}
