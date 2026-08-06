@@ -50,9 +50,9 @@ jobs:
             -F "scan_type=SARIF" \
             -F "file=@semgrep.sarif" \
             -F "auto_create_context=true" \
-            -F "product_type_name=SecOrg" \
-            -F "product_name=TestAsset" \
-            -F "engagement_name=TestEngagement" \
+            -F "product_type_name=SP Org" \
+            -F "product_name=Otel Labs" \
+            -F "engagement_name=App Sec Engagement" \
             -F "test_title=Semgrep" \
             -F "close_old_findings=true" \
             -F "do_not_reactivate=false" \
