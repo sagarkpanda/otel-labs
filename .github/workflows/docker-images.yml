@@ -59,24 +59,6 @@ jobs:
           docker tag ghcr.io/${GHCR_OWNER}/python-orders:latest ghcr.io/${GHCR_OWNER}/python-orders:${SHORT_SHA}
           docker tag ghcr.io/${GHCR_OWNER}/go-inventory:latest ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
 
-      - name: Sign node-frontend image
-        env:
-          COSIGN_YES: "true"
-        run: |
-          cosign sign ghcr.io/${GHCR_OWNER}/node-frontend:${SHORT_SHA}
-
-      - name: Sign python-orders image
-        env:
-          COSIGN_YES: "true"
-        run: |
-          cosign sign ghcr.io/${GHCR_OWNER}/python-orders:${SHORT_SHA}
-
-      - name: Sign go-inventory image
-        env:
-          COSIGN_YES: "true"
-        run: |
-          cosign sign ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
-
       # - name: Run Trivy Filesystem Scan
       #   uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
       #   with:
@@ -279,6 +261,24 @@ jobs:
           docker push ghcr.io/${GHCR_OWNER}/node-frontend:${SHORT_SHA}
           docker push ghcr.io/${GHCR_OWNER}/python-orders:${SHORT_SHA}
           docker push ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
+
+      - name: Sign node-frontend image
+        env:
+          COSIGN_YES: "true"
+        run: |
+          cosign sign ghcr.io/${GHCR_OWNER}/node-frontend:${SHORT_SHA}
+
+      - name: Sign python-orders image
+        env:
+          COSIGN_YES: "true"
+        run: |
+          cosign sign ghcr.io/${GHCR_OWNER}/python-orders:${SHORT_SHA}
+
+      - name: Sign go-inventory image
+        env:
+          COSIGN_YES: "true"
+        run: |
+          cosign sign ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
 
       - name: Checkout manifest repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
