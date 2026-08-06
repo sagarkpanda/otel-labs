@@ -167,7 +167,7 @@ jobs:
             -F "scan_type=SARIF" \
             -F "file=@trivy-node-frontend.sarif" \
             -F "auto_create_context=true" \
-            -F "product_type_name=TestOrg" \
+            -F "product_type_name=SecOrg" \
             -F "product_name=TestAsset" \
             -F "engagement_name=TestEngagement" \
             -F "test_title=TrivyNodeFrontendImage" \
@@ -189,7 +189,7 @@ jobs:
             -F "scan_type=SARIF" \
             -F "file=@trivy-python-orders.sarif" \
             -F "auto_create_context=true" \
-            -F "product_type_name=TestOrg" \
+            -F "product_type_name=SecOrg" \
             -F "product_name=TestAsset" \
             -F "engagement_name=TestEngagement" \
             -F "test_title=TrivyPythonOrdersImage" \
@@ -211,7 +211,7 @@ jobs:
             -F "scan_type=SARIF" \
             -F "file=@trivy-go-inventory.sarif" \
             -F "auto_create_context=true" \
-            -F "product_type_name=TestOrg" \
+            -F "product_type_name=SecOrg" \
             -F "product_name=TestAsset" \
             -F "engagement_name=TestEngagement" \
             -F "test_title=TrivyGoInventoryImage" \
