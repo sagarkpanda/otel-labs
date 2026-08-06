@@ -86,7 +86,7 @@ jobs:
             -F "test_title=Gitleaks" \
             -F "close_old_findings=true" \
             -F "do_not_reactivate=false" \
-            -F "environment=Development" \
+            -F "environment=Lab" \
             -F "build_id=${{ github.run_number }}" \
             -F "branch_tag=${{ github.ref_name }}" \
             -F "commit_hash=${{ github.sha }}" \
