@@ -21,6 +21,7 @@ permissions:
   contents: read
   packages: write
   security-events: write
+  id-token: write
 
 jobs:
   build-scan-push:
@@ -44,6 +45,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v4.1.2
+
       - name: Build latest images
         env:
           IMAGE_TAG: latest
@@ -54,6 +58,24 @@ jobs:
           docker tag ghcr.io/${GHCR_OWNER}/node-frontend:latest ghcr.io/${GHCR_OWNER}/node-frontend:${SHORT_SHA}
           docker tag ghcr.io/${GHCR_OWNER}/python-orders:latest ghcr.io/${GHCR_OWNER}/python-orders:${SHORT_SHA}
           docker tag ghcr.io/${GHCR_OWNER}/go-inventory:latest ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
+
+      - name: Sign node-frontend image
+        env:
+          COSIGN_YES: "true"
+        run: |
+          cosign sign ghcr.io/${GHCR_OWNER}/node-frontend:${SHORT_SHA}
+
+      - name: Sign python-orders image
+        env:
+          COSIGN_YES: "true"
+        run: |
+          cosign sign ghcr.io/${GHCR_OWNER}/python-orders:${SHORT_SHA}
+
+      - name: Sign go-inventory image
+        env:
+          COSIGN_YES: "true"
+        run: |
+          cosign sign ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
 
       # - name: Run Trivy Filesystem Scan
       #   uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
