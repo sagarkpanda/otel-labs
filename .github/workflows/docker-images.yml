@@ -66,12 +66,12 @@ jobs:
       #     output: trivy-fs.sarif
       #     exit-code: 0
 
-      - name: Upload Filesystem SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: trivy-fs.sarif
-          category: trivy-fs
+      # - name: Upload Filesystem SARIF
+      #   if: always()
+      #   uses: github/codeql-action/upload-sarif@v4
+      #   with:
+      #     sarif_file: trivy-fs.sarif
+      #     category: trivy-fs
 
       - name: Scan node-frontend image
         uses: aquasecurity/trivy-action@v0.36.0
