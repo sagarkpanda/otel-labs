@@ -1,4 +1,5 @@
-# OTel Labs – OpenTelemetry on EKS: End-to-End Observability
+# OTel Labs – OpenTelemetry on EKS: End-to-End Observability & DevSecOps
+Hands-on cloud-native project demonstrating OpenTelemetry, Kubernetes, GitOps, CI/CD, and DevSecOps practices using Amazon EKS.
 
 > Companion platform repository👇
 >
@@ -242,6 +243,59 @@ ghcr.io/<github-user>/go-inventory:<last commitid<> and <latest>
 * Amazon EKS
 * Kubernetes observability
 * Multi-backend telemetry pipelines
+
+## DevSecOps
+
+The application repository integrates automated security scanning into the CI/CD pipeline to identify vulnerabilities before container images are published and deployed.
+
+Current capabilities include:
+
+Gitleaks – Secrets detection
+Semgrep – Static Application Security Testing (SAST)
+Trivy Filesystem – Dependency and configuration scanning
+Trivy Container Images – Operating system and application dependency vulnerability scanning
+
+Scan results are published to:
+
+GitHub Security (SARIF)
+DefectDojo for centralized vulnerability management
+
+Future enhancements include container signing, supply chain security, dynamic application security testing (DAST), and Kubernetes policy enforcement.
+
+```mermaid
+flowchart LR
+
+    A["Git Push"]
+    --> B["GitHub Actions"]
+
+    subgraph CI["Application Security"]
+
+        B --> C["Gitleaks"]
+        B --> D["Semgrep"]
+        B --> E["Trivy Filesystem"]
+        B --> F["Trivy Container Images"]
+
+        C --> G["GitHub Security"]
+        D --> G
+        E --> G
+        F --> G
+
+        C --> H["DefectDojo"]
+        D --> H
+        E --> H
+        F --> H
+
+    end
+
+    I["Container Images"]
+    --> J["GitHub Container Registry"]
+
+    J --> K["Amazon EKS"]
+
+    K -. DAST .-> L["OWASP ZAP"]
+```
+
+This repository focuses on application security, while the companion otel-labs-platform repository manages platform security, Kubernetes admission policies, and infrastructure security.
 
 ## Project Status
 
