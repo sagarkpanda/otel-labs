@@ -228,29 +228,29 @@ jobs:
           IMAGE_TAG: latest
         run: docker compose push
 
-      - name: Install ORAS
-        uses: oras-project/setup-oras@v2.0.1
+      # - name: Install ORAS
+      #   uses: oras-project/setup-oras@v2.0.1
 
-      - name: Attach Node Frontend SBOM to GHCR
-        run: |
-          oras attach \
-            ghcr.io/${{ env.GHCR_OWNER }}/node-frontend:latest \
-            --artifact-type application/vnd.cyclonedx+json \
-            node-frontend-sbom.json:application/vnd.cyclonedx+json
+      # - name: Attach Node Frontend SBOM to GHCR
+      #   run: |
+      #     oras attach \
+      #       ghcr.io/${{ env.GHCR_OWNER }}/node-frontend:latest \
+      #       --artifact-type application/vnd.cyclonedx+json \
+      #       node-frontend-sbom.json:application/vnd.cyclonedx+json
 
-      - name: Attach Python Orders SBOM to GHCR
-        run: |
-          oras attach \
-            ghcr.io/${{ env.GHCR_OWNER }}/python-orders:latest \
-            --artifact-type application/vnd.cyclonedx+json \
-            python-orders-sbom.json:application/vnd.cyclonedx+json
+      # - name: Attach Python Orders SBOM to GHCR
+      #   run: |
+      #     oras attach \
+      #       ghcr.io/${{ env.GHCR_OWNER }}/python-orders:latest \
+      #       --artifact-type application/vnd.cyclonedx+json \
+      #       python-orders-sbom.json:application/vnd.cyclonedx+json
 
-      - name: Attach Go Inventory SBOM to GHCR
-        run: |
-          oras attach \
-            ghcr.io/${{ env.GHCR_OWNER }}/go-inventory:latest \
-            --artifact-type application/vnd.cyclonedx+json \
-            go-inventory-sbom.json:application/vnd.cyclonedx+json
+      # - name: Attach Go Inventory SBOM to GHCR
+      #   run: |
+      #     oras attach \
+      #       ghcr.io/${{ env.GHCR_OWNER }}/go-inventory:latest \
+      #       --artifact-type application/vnd.cyclonedx+json \
+      #       go-inventory-sbom.json:application/vnd.cyclonedx+json
 
       - name: Push SHA images
         run: |
