@@ -1,0 +1,147 @@
+name: Dockerfile Security Scan
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'node-frontend/**'
+      - 'python-orders/**'
+      - 'go-inventory/**'
+      - '.trivy/**'
+      - '.github/workflows/dockerfile-scan.yml'
+  pull_request:
+    paths:
+      - 'node-frontend/**'
+      - 'python-orders/**'
+      - 'go-inventory/**'
+      - '.trivy/**'
+      - '.github/workflows/dockerfile-scan.yml'
+
+jobs:
+  dockerfile-scan:
+    if: github.event_name != 'pull_request' || github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      # Scan Dockerfiles using centralized Trivy configuration
+      - name: Scan Node Frontend Dockerfile
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: ./node-frontend
+          format: sarif
+          output: trivy-node-frontend-dockerfile.sarif
+          trivy-config: .trivy/config.yaml
+          exit-code: 0
+
+      - name: Scan Python Orders Dockerfile
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: ./python-orders
+          format: sarif
+          output: trivy-python-orders-dockerfile.sarif
+          trivy-config: .trivy/config.yaml
+          exit-code: 0
+
+      - name: Scan Go Inventory Dockerfile
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: ./go-inventory
+          format: sarif
+          output: trivy-go-inventory-dockerfile.sarif
+          trivy-config: .trivy/config.yaml
+          exit-code: 0
+
+      # Upload Dockerfile SARIF Reports
+      - name: Upload node-frontend Dockerfile SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-node-frontend-dockerfile.sarif
+          category: trivy-node-frontend-dockerfile
+
+      - name: Upload python-orders Dockerfile SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-python-orders-dockerfile.sarif
+          category: trivy-python-orders-dockerfile
+
+      - name: Upload go-inventory Dockerfile SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-go-inventory-dockerfile.sarif
+          category: trivy-go-inventory-dockerfile
+
+      - name: Upload Node Frontend Dockerfile Results to DefectDojo
+        if: always()
+        run: |
+          curl -X POST \
+            "${{ secrets.DEFECTDOJO_URL }}/api/v2/reimport-scan/" \
+            -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+            -H "Accept: application/json" \
+            -F "scan_type=SARIF" \
+            -F "file=@trivy-node-frontend-dockerfile.sarif" \
+            -F "auto_create_context=true" \
+            -F "product_type_name=SP Org" \
+            -F "product_name=Otel Labs" \
+            -F "engagement_name=Platform Sec Engagement" \
+            -F "test_title=Trivy Node Frontend Dockerfile" \
+            -F "close_old_findings=true" \
+            -F "do_not_reactivate=false" \
+            -F "environment=Lab" \
+            -F "build_id=${{ github.run_number }}" \
+            -F "branch_tag=${{ github.ref_name }}" \
+            -F "commit_hash=${{ github.sha }}" \
+            -F "tags=github-actions,trivy,dockerfile,node-frontend,${{ github.ref_name }}"
+
+      - name: Upload Python Orders Dockerfile Results to DefectDojo
+        if: always()
+        run: |
+          curl -X POST \
+            "${{ secrets.DEFECTDOJO_URL }}/api/v2/reimport-scan/" \
+            -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+            -H "Accept: application/json" \
+            -F "scan_type=SARIF" \
+            -F "file=@trivy-python-orders-dockerfile.sarif" \
+            -F "auto_create_context=true" \
+            -F "product_type_name=SP Org" \
+            -F "product_name=Otel Labs" \
+            -F "engagement_name=Platform Sec Engagement" \
+            -F "test_title=Trivy Python Orders Dockerfile" \
+            -F "close_old_findings=true" \
+            -F "do_not_reactivate=false" \
+            -F "environment=Lab" \
+            -F "build_id=${{ github.run_number }}" \
+            -F "branch_tag=${{ github.ref_name }}" \
+            -F "commit_hash=${{ github.sha }}" \
+            -F "tags=github-actions,trivy,dockerfile,python-orders,${{ github.ref_name }}"
+
+      - name: Upload Go Inventory Dockerfile Results to DefectDojo
+        if: always()
+        run: |
+          curl -X POST \
+            "${{ secrets.DEFECTDOJO_URL }}/api/v2/reimport-scan/" \
+            -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+            -H "Accept: application/json" \
+            -F "scan_type=SARIF" \
+            -F "file=@trivy-go-inventory-dockerfile.sarif" \
+            -F "auto_create_context=true" \
+            -F "product_type_name=SP Org" \
+            -F "product_name=Otel Labs" \
+            -F "engagement_name=Platform Sec Engagement" \
+            -F "test_title=Trivy Go Inventory Dockerfile" \
+            -F "close_old_findings=true" \
+            -F "do_not_reactivate=false" \
+            -F "environment=Lab" \
+            -F "build_id=${{ github.run_number }}" \
+            -F "branch_tag=${{ github.ref_name }}" \
+            -F "commit_hash=${{ github.sha }}" \
+            -F "tags=github-actions,trivy,dockerfile,go-inventory,${{ github.ref_name }}"
