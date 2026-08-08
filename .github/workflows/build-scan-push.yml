@@ -250,7 +250,7 @@ jobs:
             -F "auto_create_context=true" \
             -F "product_type_name=$DD_PRODUCT_TYPE" \
             -F "product_name=$DD_PRODUCT" \
-            -F "engagement_name=$DD_ENGAGEMENT:" \
+            -F "engagement_name=$DD_ENGAGEMENT" \
             -F "test_title=Trivy Go Inventory Image" \
             -F "close_old_findings=true" \
             -F "do_not_reactivate=false" \
