@@ -18,6 +18,10 @@ on:
       - '.trivy/**'
       - '.github/workflows/dockerfile-scan.yml'
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   dockerfile-scan:
     if: github.event_name != 'pull_request' || github.actor != 'dependabot[bot]'
