@@ -6,15 +6,18 @@ RUN apk add --no-cache git
 
 COPY . .
 
-RUN go mod tidy
-
-RUN go build -o inventory .
+RUN go mod tidy && go build -o inventory .
 
 FROM alpine:3.22
 
 WORKDIR /app
 
-COPY --from=builder /app/inventory .
+RUN addgroup -S -g 1001 goappuser && \
+    adduser -S -u 1001 -G goappuser goappuser
+
+COPY --from=builder --chown=1001:1001 /app/inventory .
+
+USER 1001
 
 EXPOSE 8080
 
