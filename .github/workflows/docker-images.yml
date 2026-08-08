@@ -1,3 +1,22 @@
+# Trivy scans:
+#
+# - vuln: scans OS and application packages in the image for known CVEs.
+#
+# - misconfig: scans the image filesystem for security misconfigurations.
+#
+# - image-config-scanners: scans the image configuration for hardening issues,
+#   such as running as root / missing non-root USER configuration.
+#
+# Trivy FS is used separately to scan files in the repository rather than
+# the built image. It is used for areas such as:
+# - Terraform/IaC misconfigurations
+# - Kubernetes manifests
+# - Dockerfiles and other configuration files
+#
+# Trivy also supports secret scanning, but it is intentionally not enabled here.
+# Secrets are handled separately by Gitleaks across the repository, including
+# Dockerfiles. This keeps secret detection owned by a single dedicated tool.
+
 name: Build, Scan and Push Images
 
 on:
@@ -83,6 +102,8 @@ jobs:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/node-frontend:latest
           format: sarif
           scanners: vuln,misconfig
+          # Image configuration misconfiguration checks, e.g. non-root USER.
+          image-config-scanners: misconfig
           severity: HIGH,CRITICAL
           output: trivy-node-frontend.sarif
           ignore-unfixed: true
@@ -101,6 +122,8 @@ jobs:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/python-orders:latest
           format: sarif
           scanners: vuln,misconfig
+          # Image configuration misconfiguration checks, e.g. non-root USER.
+          image-config-scanners: misconfig
           severity: HIGH,CRITICAL
           output: trivy-python-orders.sarif
           ignore-unfixed: true
@@ -119,6 +142,8 @@ jobs:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/go-inventory:latest
           format: sarif
           scanners: vuln,misconfig
+          # Image configuration misconfiguration checks, e.g. non-root USER.
+          image-config-scanners: misconfig
           severity: HIGH,CRITICAL
           output: trivy-go-inventory.sarif
           ignore-unfixed: true
@@ -130,6 +155,27 @@ jobs:
         with:
           sarif_file: trivy-go-inventory.sarif
           category: go-inventory
+
+      - name: Scan OpenTelemetry Collector image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: otel/opentelemetry-collector-contrib:0.131.0
+          format: sarif
+          scanners: vuln,misconfig
+          # Image configuration misconfiguration checks, e.g. non-root USER.
+          image-config-scanners: misconfig
+          severity: HIGH,CRITICAL
+          output: trivy-otel-collector.sarif
+          ignore-unfixed: true
+          exit-code: 0
+
+      - name: Upload OpenTelemetry Collector SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-otel-collector.sarif
+          category: otel-collector
+
 
       - name: Generate Node Frontend SBOM
         uses: aquasecurity/trivy-action@v0.36.0
@@ -152,6 +198,13 @@ jobs:
           format: cyclonedx
           output: go-inventory-sbom.json
 
+      - name: Generate OpenTelemetry Collector SBOM
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: otel/opentelemetry-collector-contrib:0.131.0
+          format: cyclonedx
+          output: otel-collector-sbom.json
+
       - name: Upload SBOM Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -160,6 +213,7 @@ jobs:
             node-frontend-sbom.json
             python-orders-sbom.json
             go-inventory-sbom.json
+            otel-collector-sbom.json
 
       - name: Upload Node Frontend Image Results to DefectDojo
         if: always()
@@ -174,7 +228,7 @@ jobs:
             -F "product_type_name=SP Org" \
             -F "product_name=Otel Labs" \
             -F "engagement_name=App Sec Engagement" \
-            -F "test_title=Trivy Node FrontendImage" \
+            -F "test_title=Trivy Node Frontend Image" \
             -F "close_old_findings=true" \
             -F "do_not_reactivate=false" \
             -F "environment=Lab" \
@@ -226,6 +280,27 @@ jobs:
             -F "branch_tag=${{ github.ref_name }}" \
             -F "commit_hash=${{ github.sha }}" \
             -F "tags=github-actions,trivy,image,go-inventory,${{ github.ref_name }}"
+      - name: Upload OpenTelemetry Collector Image Results to DefectDojo
+        if: always()
+        run: |
+          curl -X POST \
+            "${{ secrets.DEFECTDOJO_URL }}/api/v2/reimport-scan/" \
+            -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+            -H "Accept: application/json" \
+            -F "scan_type=SARIF" \
+            -F "file=@trivy-otel-collector.sarif" \
+            -F "auto_create_context=true" \
+            -F "product_type_name=SP Org" \
+            -F "product_name=Otel Labs" \
+            -F "engagement_name=App Sec Engagement" \
+            -F "test_title=Trivy OpenTelemetry Collector Image" \
+            -F "close_old_findings=true" \
+            -F "do_not_reactivate=false" \
+            -F "environment=Lab" \
+            -F "build_id=${{ github.run_number }}" \
+            -F "branch_tag=${{ github.ref_name }}" \
+            -F "commit_hash=${{ github.sha }}" \
+            -F "tags=github-actions,trivy,image,otel-collector,${{ github.ref_name }}"
 
       - name: Push latest images
         env:
