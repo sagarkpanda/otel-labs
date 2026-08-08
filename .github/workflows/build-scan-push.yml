@@ -32,6 +32,8 @@ on:
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/PULL_REQUEST_TEMPLATE.md'
       - 'images/**'
+      - '.github/workflows/dockerfile-scan.yml'
+      - '.github/workflows/gitleaks.yml'
 
   workflow_dispatch:
 
