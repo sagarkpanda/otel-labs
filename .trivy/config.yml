@@ -1,0 +1,21 @@
+# Centralized Trivy configuration for the otel-labs application repository.
+#
+# Used by:
+# - Container image scans
+# - Dockerfile/configuration scans
+#
+# Secrets are intentionally excluded from Trivy.
+# Gitleaks is the dedicated secret scanner for this repository.
+
+severity:
+  - HIGH
+  - CRITICAL
+
+scanners:
+  - vuln
+  - misconfig
+
+format: sarif
+
+vulnerability:
+  ignore-unfixed: true

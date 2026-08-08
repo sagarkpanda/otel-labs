@@ -1,9 +1,8 @@
+# Build, Scan and Push Images - Refactored with Centralized Trivy Config
+#
 # Trivy scans:
-#
 # - vuln: scans OS and application packages in the image for known CVEs.
-#
 # - misconfig: scans the image filesystem for security misconfigurations.
-#
 # - image-config-scanners: scans the image configuration for hardening issues,
 #   such as running as root / missing non-root USER configuration.
 #
@@ -22,7 +21,7 @@ name: Build, Scan and Push Images
 on:
   push:
     branches:
-      - mainn
+      - main
     paths-ignore:
       - '**/*.md'
       - '.gitignore'
@@ -48,6 +47,7 @@ jobs:
 
     env:
       GHCR_OWNER: ${{ github.repository_owner }}
+      TRIVY_CONFIG: .trivy/trivy.yaml
 
     steps:
       - name: Checkout application repo
@@ -78,97 +78,133 @@ jobs:
           docker tag ghcr.io/${GHCR_OWNER}/python-orders:latest ghcr.io/${GHCR_OWNER}/python-orders:${SHORT_SHA}
           docker tag ghcr.io/${GHCR_OWNER}/go-inventory:latest ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
 
-      # - name: Run Trivy Filesystem Scan
-      #   uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
-      #   with:
-      #     scan-type: fs
-      #     scan-ref: .
-      #     scanners: vuln,misconfig
-      #     format: sarif
-      #     severity: HIGH,CRITICAL
-      #     output: trivy-fs.sarif
-      #     exit-code: 0
-
-      # - name: Upload Filesystem SARIF
-      #   if: always()
-      #   uses: github/codeql-action/upload-sarif@v4
-      #   with:
-      #     sarif_file: trivy-fs.sarif
-      #     category: trivy-fs
-
+      # Scan Docker images using centralized config
       - name: Scan node-frontend image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/node-frontend:latest
           format: sarif
-          scanners: vuln,misconfig
-          severity: HIGH,CRITICAL
           output: trivy-node-frontend.sarif
-          ignore-unfixed: true
+          ttrivy-config: .trivy/config.yaml
           exit-code: 0
-
-      - name: Upload node-frontend SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: trivy-node-frontend.sarif
-          category: node-frontend
 
       - name: Scan python-orders image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/python-orders:latest
           format: sarif
-          scanners: vuln,misconfig
-          severity: HIGH,CRITICAL
           output: trivy-python-orders.sarif
-          ignore-unfixed: true
+          ttrivy-config: .trivy/config.yaml
           exit-code: 0
-
-      - name: Upload python-orders SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: trivy-python-orders.sarif
-          category: python-orders
 
       - name: Scan go-inventory image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/go-inventory:latest
           format: sarif
-          scanners: vuln,misconfig
-          severity: HIGH,CRITICAL
           output: trivy-go-inventory.sarif
-          ignore-unfixed: true
+          ttrivy-config: .trivy/config.yaml
           exit-code: 0
-
-      - name: Upload go-inventory SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: trivy-go-inventory.sarif
-          category: go-inventory
 
       - name: Scan OpenTelemetry Collector image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: otel/opentelemetry-collector-contrib:0.131.0
           format: sarif
-          scanners: vuln,misconfig
-          severity: HIGH,CRITICAL
           output: trivy-otel-collector.sarif
-          ignore-unfixed: true
+          ttrivy-config: .trivy/config.yaml
           exit-code: 0
 
-      - name: Upload OpenTelemetry Collector SARIF
+      # Scan Dockerfiles using centralized config
+      - name: Scan Node Frontend Dockerfile
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: ./node-frontend
+          format: sarif
+          output: trivy-node-frontend-dockerfile.sarif
+          ttrivy-config: .trivy/config.yaml
+          exit-code: 0
+
+      - name: Scan Python Orders Dockerfile
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: ./python-orders
+          format: sarif
+          output: trivy-python-orders-dockerfile.sarif
+          ttrivy-config: .trivy/config.yaml
+          exit-code: 0
+
+      - name: Scan Go Inventory Dockerfile
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: ./go-inventory
+          format: sarif
+          output: trivy-go-inventory-dockerfile.sarif
+          ttrivy-config: .trivy/config.yaml
+          exit-code: 0
+
+      # Upload Image SARIF Reports
+      - name: Upload node-frontend image SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-node-frontend.sarif
+          category: trivy-node-frontend-image
+          delete-old-findings: true
+
+      - name: Upload python-orders image SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-python-orders.sarif
+          category: trivy-python-orders-image
+          delete-old-findings: true
+
+      - name: Upload go-inventory image SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-go-inventory.sarif
+          category: trivy-go-inventory-image
+          delete-old-findings: true
+
+      - name: Upload otel-collector image SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-otel-collector.sarif
-          category: otel-collector
+          category: trivy-otel-collector-image
+          delete-old-findings: true
 
+      # Upload Dockerfile SARIF Reports
+      - name: Upload node-frontend Dockerfile SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-node-frontend-dockerfile.sarif
+          category: trivy-node-frontend-dockerfile
+          delete-old-findings: true
 
+      - name: Upload python-orders Dockerfile SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-python-orders-dockerfile.sarif
+          category: trivy-python-orders-dockerfile
+          delete-old-findings: true
+
+      - name: Upload go-inventory Dockerfile SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-go-inventory-dockerfile.sarif
+          category: trivy-go-inventory-dockerfile
+          delete-old-findings: true
+
+      # Generate SBOMs
       - name: Generate Node Frontend SBOM
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -207,6 +243,7 @@ jobs:
             go-inventory-sbom.json
             otel-collector-sbom.json
 
+      # Upload to DefectDojo (Image Scans)
       - name: Upload Node Frontend Image Results to DefectDojo
         if: always()
         run: |
@@ -242,7 +279,7 @@ jobs:
             -F "product_type_name=SP Org" \
             -F "product_name=Otel Labs" \
             -F "engagement_name=App Sec Engagement" \
-            -F "test_title=Trivy PythonOrders Image" \
+            -F "test_title=Trivy Python Orders Image" \
             -F "close_old_findings=true" \
             -F "do_not_reactivate=false" \
             -F "environment=Lab" \
@@ -264,7 +301,7 @@ jobs:
             -F "product_type_name=SP Org" \
             -F "product_name=Otel Labs" \
             -F "engagement_name=App Sec Engagement" \
-            -F "test_title=Trivy GoInventory Image" \
+            -F "test_title=Trivy Go Inventory Image" \
             -F "close_old_findings=true" \
             -F "do_not_reactivate=false" \
             -F "environment=Lab" \
@@ -272,6 +309,7 @@ jobs:
             -F "branch_tag=${{ github.ref_name }}" \
             -F "commit_hash=${{ github.sha }}" \
             -F "tags=github-actions,trivy,image,go-inventory,${{ github.ref_name }}"
+
       - name: Upload OpenTelemetry Collector Image Results to DefectDojo
         if: always()
         run: |
@@ -294,58 +332,83 @@ jobs:
             -F "commit_hash=${{ github.sha }}" \
             -F "tags=github-actions,trivy,image,otel-collector,${{ github.ref_name }}"
 
+      # Upload to DefectDojo (Dockerfile Scans)
+      - name: Upload Node Frontend Dockerfile Results to DefectDojo
+        if: always()
+        run: |
+          curl -X POST \
+            "${{ secrets.DEFECTDOJO_URL }}/api/v2/reimport-scan/" \
+            -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+            -H "Accept: application/json" \
+            -F "scan_type=SARIF" \
+            -F "file=@trivy-node-frontend-dockerfile.sarif" \
+            -F "auto_create_context=true" \
+            -F "product_type_name=SP Org" \
+            -F "product_name=Otel Labs" \
+            -F "engagement_name=App Sec Engagement" \
+            -F "test_title=Trivy Node Frontend Dockerfile" \
+            -F "close_old_findings=true" \
+            -F "do_not_reactivate=false" \
+            -F "environment=Lab" \
+            -F "build_id=${{ github.run_number }}" \
+            -F "branch_tag=${{ github.ref_name }}" \
+            -F "commit_hash=${{ github.sha }}" \
+            -F "tags=github-actions,trivy,dockerfile,node-frontend,${{ github.ref_name }}"
+
+      - name: Upload Python Orders Dockerfile Results to DefectDojo
+        if: always()
+        run: |
+          curl -X POST \
+            "${{ secrets.DEFECTDOJO_URL }}/api/v2/reimport-scan/" \
+            -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+            -H "Accept: application/json" \
+            -F "scan_type=SARIF" \
+            -F "file=@trivy-python-orders-dockerfile.sarif" \
+            -F "auto_create_context=true" \
+            -F "product_type_name=SP Org" \
+            -F "product_name=Otel Labs" \
+            -F "engagement_name=App Sec Engagement" \
+            -F "test_title=Trivy Python Orders Dockerfile" \
+            -F "close_old_findings=true" \
+            -F "do_not_reactivate=false" \
+            -F "environment=Lab" \
+            -F "build_id=${{ github.run_number }}" \
+            -F "branch_tag=${{ github.ref_name }}" \
+            -F "commit_hash=${{ github.sha }}" \
+            -F "tags=github-actions,trivy,dockerfile,python-orders,${{ github.ref_name }}"
+
+      - name: Upload Go Inventory Dockerfile Results to DefectDojo
+        if: always()
+        run: |
+          curl -X POST \
+            "${{ secrets.DEFECTDOJO_URL }}/api/v2/reimport-scan/" \
+            -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+            -H "Accept: application/json" \
+            -F "scan_type=SARIF" \
+            -F "file=@trivy-go-inventory-dockerfile.sarif" \
+            -F "auto_create_context=true" \
+            -F "product_type_name=SP Org" \
+            -F "product_name=Otel Labs" \
+            -F "engagement_name=App Sec Engagement" \
+            -F "test_title=Trivy Go Inventory Dockerfile" \
+            -F "close_old_findings=true" \
+            -F "do_not_reactivate=false" \
+            -F "environment=Lab" \
+            -F "build_id=${{ github.run_number }}" \
+            -F "branch_tag=${{ github.ref_name }}" \
+            -F "commit_hash=${{ github.sha }}" \
+            -F "tags=github-actions,trivy,dockerfile,go-inventory,${{ github.ref_name }}"
+
       - name: Push latest images
         env:
           IMAGE_TAG: latest
         run: docker compose push
-
-      # - name: Install ORAS
-      #   uses: oras-project/setup-oras@v2.0.1
-
-      # - name: Attach Node Frontend SBOM to GHCR
-      #   run: |
-      #     oras attach \
-      #       ghcr.io/${{ env.GHCR_OWNER }}/node-frontend:latest \
-      #       --artifact-type application/vnd.cyclonedx+json \
-      #       node-frontend-sbom.json:application/vnd.cyclonedx+json
-
-      # - name: Attach Python Orders SBOM to GHCR
-      #   run: |
-      #     oras attach \
-      #       ghcr.io/${{ env.GHCR_OWNER }}/python-orders:latest \
-      #       --artifact-type application/vnd.cyclonedx+json \
-      #       python-orders-sbom.json:application/vnd.cyclonedx+json
-
-      # - name: Attach Go Inventory SBOM to GHCR
-      #   run: |
-      #     oras attach \
-      #       ghcr.io/${{ env.GHCR_OWNER }}/go-inventory:latest \
-      #       --artifact-type application/vnd.cyclonedx+json \
-      #       go-inventory-sbom.json:application/vnd.cyclonedx+json
 
       - name: Push SHA images
         run: |
           docker push ghcr.io/${GHCR_OWNER}/node-frontend:${SHORT_SHA}
           docker push ghcr.io/${GHCR_OWNER}/python-orders:${SHORT_SHA}
           docker push ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
-
-      # - name: Sign node-frontend image
-      #   env:
-      #     COSIGN_YES: "true"
-      #   run: |
-      #     cosign sign ghcr.io/${GHCR_OWNER}/node-frontend:${SHORT_SHA}
-
-      # - name: Sign python-orders image
-      #   env:
-      #     COSIGN_YES: "true"
-      #   run: |
-      #     cosign sign ghcr.io/${GHCR_OWNER}/python-orders:${SHORT_SHA}
-
-      # - name: Sign go-inventory image
-      #   env:
-      #     COSIGN_YES: "true"
-      #   run: |
-      #     cosign sign ghcr.io/${GHCR_OWNER}/go-inventory:${SHORT_SHA}
 
       - name: Checkout manifest repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
