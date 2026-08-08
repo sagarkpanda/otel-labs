@@ -57,7 +57,7 @@ jobs:
 
     env:
       GHCR_OWNER: ${{ github.repository_owner }}
-      TRIVY_CONFIG: .trivy/trivy.yaml
+      TRIVY_CONFIG: .trivy/config.yaml
 
     steps:
       - name: Checkout application repo
@@ -95,7 +95,7 @@ jobs:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/node-frontend:latest
           format: sarif
           output: trivy-node-frontend.sarif
-          trivy-config: .trivy/config.yaml
+          trivy-config: ${{ env.TRIVY_CONFIG }}
           exit-code: 0
 
       - name: Scan python-orders image
@@ -104,7 +104,7 @@ jobs:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/python-orders:latest
           format: sarif
           output: trivy-python-orders.sarif
-          trivy-config: .trivy/config.yaml
+          trivy-config: ${{ env.TRIVY_CONFIG }}
           exit-code: 0
 
       - name: Scan go-inventory image
@@ -113,7 +113,7 @@ jobs:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/go-inventory:latest
           format: sarif
           output: trivy-go-inventory.sarif
-          trivy-config: .trivy/config.yaml
+          trivy-config: ${{ env.TRIVY_CONFIG }}
           exit-code: 0
 
       # - name: Scan OpenTelemetry Collector image

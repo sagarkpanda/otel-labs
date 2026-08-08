@@ -19,3 +19,8 @@ format: sarif
 
 vulnerability:
   ignore-unfixed: true
+
+# Limit SARIF output to the severity levels configured above (HIGH, CRITICAL).
+# By default, Trivy may include findings of all severity levels in SARIF output,
+# even when the severity setting is restricted.
+limit-severities-for-sarif: true
