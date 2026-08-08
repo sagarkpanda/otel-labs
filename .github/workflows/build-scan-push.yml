@@ -85,7 +85,7 @@ jobs:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/node-frontend:latest
           format: sarif
           output: trivy-node-frontend.sarif
-          ttrivy-config: .trivy/config.yaml
+          trivy-config: .trivy/config.yaml
           exit-code: 0
 
       - name: Scan python-orders image
@@ -94,7 +94,7 @@ jobs:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/python-orders:latest
           format: sarif
           output: trivy-python-orders.sarif
-          ttrivy-config: .trivy/config.yaml
+          trivy-config: .trivy/config.yaml
           exit-code: 0
 
       - name: Scan go-inventory image
@@ -103,7 +103,7 @@ jobs:
           image-ref: ghcr.io/${{ env.GHCR_OWNER }}/go-inventory:latest
           format: sarif
           output: trivy-go-inventory.sarif
-          ttrivy-config: .trivy/config.yaml
+          trivy-config: .trivy/config.yaml
           exit-code: 0
 
       - name: Scan OpenTelemetry Collector image
@@ -112,7 +112,7 @@ jobs:
           image-ref: otel/opentelemetry-collector-contrib:0.131.0
           format: sarif
           output: trivy-otel-collector.sarif
-          ttrivy-config: .trivy/config.yaml
+          trivy-config: .trivy/config.yaml
           exit-code: 0
 
       # Scan Dockerfiles using centralized config
@@ -123,7 +123,7 @@ jobs:
           scan-ref: ./node-frontend
           format: sarif
           output: trivy-node-frontend-dockerfile.sarif
-          ttrivy-config: .trivy/config.yaml
+          trivy-config: .trivy/config.yaml
           exit-code: 0
 
       - name: Scan Python Orders Dockerfile
@@ -133,7 +133,7 @@ jobs:
           scan-ref: ./python-orders
           format: sarif
           output: trivy-python-orders-dockerfile.sarif
-          ttrivy-config: .trivy/config.yaml
+          trivy-config: .trivy/config.yaml
           exit-code: 0
 
       - name: Scan Go Inventory Dockerfile
@@ -143,7 +143,7 @@ jobs:
           scan-ref: ./go-inventory
           format: sarif
           output: trivy-go-inventory-dockerfile.sarif
-          ttrivy-config: .trivy/config.yaml
+          trivy-config: .trivy/config.yaml
           exit-code: 0
 
       # Upload Image SARIF Reports
