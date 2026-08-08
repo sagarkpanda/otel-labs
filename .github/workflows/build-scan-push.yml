@@ -64,8 +64,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v4.1.2
+      # - name: Install Cosign
+      #   uses: sigstore/cosign-installer@v4.1.2
 
       - name: Build latest images
         env:
@@ -181,7 +181,7 @@ jobs:
             node-frontend-sbom.json
             python-orders-sbom.json
             go-inventory-sbom.json
-            # otel-collector-sbom.json
+          # otel-collector-sbom.json
 
       # Upload to DefectDojo (Image Scans)
       - name: Upload Node Frontend Image Results to DefectDojo
