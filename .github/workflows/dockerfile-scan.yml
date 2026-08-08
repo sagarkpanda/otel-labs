@@ -22,6 +22,16 @@ permissions:
   contents: read
   security-events: write
 
+env:
+  DD_BUILD_ID: ${{ github.run_number }}
+  DD_BRANCH: ${{ github.ref_name }}
+  DD_COMMIT: ${{ github.sha }}
+
+  DD_PRODUCT_TYPE: SP Org
+  DD_PRODUCT: Otel Labs
+  DD_ENGAGEMENT: Platform Sec Engagement
+  DD_ENVIRONMENT: Lab
+
 jobs:
   dockerfile-scan:
     if: github.event_name != 'pull_request' || github.actor != 'dependabot[bot]'
@@ -94,17 +104,17 @@ jobs:
             -F "scan_type=SARIF" \
             -F "file=@trivy-node-frontend-dockerfile.sarif" \
             -F "auto_create_context=true" \
-            -F "product_type_name=SP Org" \
-            -F "product_name=Otel Labs" \
-            -F "engagement_name=Platform Sec Engagement" \
+            -F "product_type_name=$DD_PRODUCT_TYPE" \
+            -F "product_name=$DD_PRODUCT" \
+            -F "engagement_name=$DD_ENGAGEMENT" \
             -F "test_title=Trivy Node Frontend Dockerfile" \
             -F "close_old_findings=true" \
             -F "do_not_reactivate=false" \
-            -F "environment=Lab" \
-            -F "build_id=${{ github.run_number }}" \
-            -F "branch_tag=${{ github.ref_name }}" \
-            -F "commit_hash=${{ github.sha }}" \
-            -F "tags=github-actions,trivy,dockerfile,node-frontend,${{ github.ref_name }}"
+            -F "environment=$DD_ENVIRONMENT" \
+            -F "build_id=$DD_BUILD_ID" \
+            -F "branch_tag=$DD_BRANCH" \
+            -F "commit_hash=$DD_COMMIT" \
+            -F "tags=github-actions,trivy,dockerfile,node-frontend,$DD_BRANCH"
 
       - name: Upload Python Orders Dockerfile Results to DefectDojo
         if: always()
@@ -116,17 +126,17 @@ jobs:
             -F "scan_type=SARIF" \
             -F "file=@trivy-python-orders-dockerfile.sarif" \
             -F "auto_create_context=true" \
-            -F "product_type_name=SP Org" \
-            -F "product_name=Otel Labs" \
-            -F "engagement_name=Platform Sec Engagement" \
+            -F "product_type_name=$DD_PRODUCT_TYPE" \
+            -F "product_name=$DD_PRODUCT" \
+            -F "engagement_name=$DD_ENGAGEMENT" \
             -F "test_title=Trivy Python Orders Dockerfile" \
             -F "close_old_findings=true" \
             -F "do_not_reactivate=false" \
-            -F "environment=Lab" \
-            -F "build_id=${{ github.run_number }}" \
-            -F "branch_tag=${{ github.ref_name }}" \
-            -F "commit_hash=${{ github.sha }}" \
-            -F "tags=github-actions,trivy,dockerfile,python-orders,${{ github.ref_name }}"
+            -F "environment=$DD_ENVIRONMENT" \
+            -F "build_id=$DD_BUILD_ID" \
+            -F "branch_tag=$DD_BRANCH" \
+            -F "commit_hash=$DD_COMMIT" \
+            -F "tags=github-actions,trivy,dockerfile,python-orders,$DD_BRANCH"
 
       - name: Upload Go Inventory Dockerfile Results to DefectDojo
         if: always()
@@ -138,14 +148,14 @@ jobs:
             -F "scan_type=SARIF" \
             -F "file=@trivy-go-inventory-dockerfile.sarif" \
             -F "auto_create_context=true" \
-            -F "product_type_name=SP Org" \
-            -F "product_name=Otel Labs" \
-            -F "engagement_name=Platform Sec Engagement" \
+            -F "product_type_name=$DD_PRODUCT_TYPE" \
+            -F "product_name=$DD_PRODUCT" \
+            -F "engagement_name=$DD_ENGAGEMENT" \
             -F "test_title=Trivy Go Inventory Dockerfile" \
             -F "close_old_findings=true" \
             -F "do_not_reactivate=false" \
-            -F "environment=Lab" \
-            -F "build_id=${{ github.run_number }}" \
-            -F "branch_tag=${{ github.ref_name }}" \
-            -F "commit_hash=${{ github.sha }}" \
-            -F "tags=github-actions,trivy,dockerfile,go-inventory,${{ github.ref_name }}"
+            -F "environment=$DD_ENVIRONMENT" \
+            -F "build_id=$DD_BUILD_ID" \
+            -F "branch_tag=$DD_BRANCH" \
+            -F "commit_hash=$DD_COMMIT" \
+            -F "tags=github-actions,trivy,dockerfile,go-inventory,$DD_BRANCH"
