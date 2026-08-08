@@ -153,7 +153,6 @@ jobs:
         with:
           sarif_file: trivy-node-frontend.sarif
           category: trivy-node-frontend-image
-          delete-old-findings: true
 
       - name: Upload python-orders image SARIF
         if: always()
@@ -161,7 +160,6 @@ jobs:
         with:
           sarif_file: trivy-python-orders.sarif
           category: trivy-python-orders-image
-          delete-old-findings: true
 
       - name: Upload go-inventory image SARIF
         if: always()
@@ -169,7 +167,6 @@ jobs:
         with:
           sarif_file: trivy-go-inventory.sarif
           category: trivy-go-inventory-image
-          delete-old-findings: true
 
       - name: Upload otel-collector image SARIF
         if: always()
@@ -177,7 +174,6 @@ jobs:
         with:
           sarif_file: trivy-otel-collector.sarif
           category: trivy-otel-collector-image
-          delete-old-findings: true
 
       # Upload Dockerfile SARIF Reports
       - name: Upload node-frontend Dockerfile SARIF
@@ -186,7 +182,6 @@ jobs:
         with:
           sarif_file: trivy-node-frontend-dockerfile.sarif
           category: trivy-node-frontend-dockerfile
-          delete-old-findings: true
 
       - name: Upload python-orders Dockerfile SARIF
         if: always()
@@ -194,7 +189,6 @@ jobs:
         with:
           sarif_file: trivy-python-orders-dockerfile.sarif
           category: trivy-python-orders-dockerfile
-          delete-old-findings: true
 
       - name: Upload go-inventory Dockerfile SARIF
         if: always()
@@ -202,7 +196,6 @@ jobs:
         with:
           sarif_file: trivy-go-inventory-dockerfile.sarif
           category: trivy-go-inventory-dockerfile
-          delete-old-findings: true
 
       # Generate SBOMs
       - name: Generate Node Frontend SBOM
