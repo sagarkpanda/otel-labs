@@ -209,7 +209,7 @@ jobs:
             -F "product_type_name=$DD_PRODUCT_TYPE" \
             -F "product_name=$DD_PRODUCT" \
             -F "engagement_name=$DD_ENGAGEMENT" \
-            -F "test_title=Trivy Node Frontend Image" \
+            -F "test_title=Trivy Node Image" \
             -F "close_old_findings=true" \
             -F "do_not_reactivate=false" \
             -F "environment=$DD_ENVIRONMENT" \
@@ -231,7 +231,7 @@ jobs:
             -F "product_type_name=$DD_PRODUCT_TYPE" \
             -F "product_name=$DD_PRODUCT" \
             -F "engagement_name=$DD_ENGAGEMENT" \
-            -F "test_title=Trivy Python Orders Image" \
+            -F "test_title=Trivy Python Image" \
             -F "close_old_findings=true" \
             -F "do_not_reactivate=false" \
             -F "environment=$DD_ENVIRONMENT" \
@@ -253,7 +253,7 @@ jobs:
             -F "product_type_name=$DD_PRODUCT_TYPE" \
             -F "product_name=$DD_PRODUCT" \
             -F "engagement_name=$DD_ENGAGEMENT" \
-            -F "test_title=Trivy Go Inventory Image" \
+            -F "test_title=Trivy Go Image" \
             -F "close_old_findings=true" \
             -F "do_not_reactivate=false" \
             -F "environment=$DD_ENVIRONMENT" \
