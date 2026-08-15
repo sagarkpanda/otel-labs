@@ -9,7 +9,7 @@ on:
       - 'go-inventory/**'
       - 'otel-collector/**'
       - '.github/workflows/semgrep.yml'
-      
+
   workflow_dispatch:
 
 permissions:
